@@ -31,11 +31,13 @@ if ($func == 'gamefinish')
 	$key = preg_replace('/[^A-Za-z0-9\-]/', '', $args['key']);
 	$counterRed = preg_replace('/[^0-9\-]/', '', $args['counter_red']);
 	$counterBlue = preg_replace('/[^0-9\-]/', '', $args['counter_blue']);
+	$userId = preg_replace('/[^0-9]/', '', $args['user_id']);
+	$authKey = preg_replace('/[^0-9a-fA-F]/', '', $args['user_id']);
 
 	$request = sprintf('
-		INSERT INTO `game` (`key`,`counter_red`,`counter_blue`) 
-		VALUES (0x%s,%d,%d)',
-		$key,$counterRed,$counterBlue);
+		INSERT INTO `game` (`key`,`counter_red`,`counter_blue`,`user_id`) 
+		VALUES (0x%s,%d,%d,%d)',
+		$key,$counterRed,$counterBlue,$userId);
 		
 	mysql_query($request) or  show_error(5,mysql_error($link));
 
@@ -50,11 +52,13 @@ if ($func == 'setname')
 
 	$key = preg_replace('/[^A-Za-z0-9\-]/', '', $args['key']);
 	$name = urlencode(trim($args['name'],'"'));
+	$userId = preg_replace('/[^0-9]/', '', $args['user_id']);
+	$authKey = preg_replace('/[^0-9a-fA-F]/', '', $args['auth_key']);
 
 	$request = sprintf('
-		REPLACE INTO `player` (`key`,`name`) 
-		VALUES (0x%s,"%s")',
-		$key,$name);
+		REPLACE INTO `player` (`key`,`name`,`user_id`,`auth_key`) 
+		VALUES (0x%s,"%s",%d,0x%s)',
+		$key,$name,$userId,$authKey);
 		
 	mysql_query($request) or  show_error(5,mysql_error($link));
 

@@ -94,10 +94,11 @@
 <script src="js/loaders/ObjLoader.js" type="text/javascript"></script>
 <script src="client.js" type="text/javascript"></script>
 <script src="tools.js" type="text/javascript"></script>
-<script src="http://mrdoob.github.com/three.js/examples/fonts/helvetiker_regular.typeface.js"></script>
 
 <script>
-
+	var userId = <?php if ($_GET["viewer_id"]) echo $_GET["viewer_id"]; else echo "-1";?>;
+	var apiId = <?php if ($_GET["api_id"]) echo $_GET["api_id"]; else echo "-1";?>;
+	var authKey = "<?php if ($_GET["auth_key"]) echo $_GET["auth_key"]; else echo "-1";?>";
     var scene, camera, renderer;
     var geometry, material, material1;
     var mesh;
@@ -639,7 +640,7 @@ var loadCount = 0;
 		var input = document.getElementById("name_input");
 		var name = input.value;
 		setCookie("name",name,{expires:3600 * 24 * 30});
-		client.sendRequest("setname", {key:getKey(), name:encodeURIComponent(name)},"POST",onSuccess,onError);
+		client.sendRequest("setname", {key:getKey(), name:encodeURIComponent(name), user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
 	}
 
 	function gameOver()
@@ -652,7 +653,7 @@ var loadCount = 0;
 			"<a href='https://vk.com/club88625833'>Группа вконтакте</a>";
 		window.style.visibility = "visible";
 		
-		client.sendRequest("gamefinish", {key:getKey(), counter_red:counter, counter_blue:counterBlue},"POST",onSuccess,onError);
+		client.sendRequest("gamefinish", {key:getKey(), counter_red:counter, counter_blue:counterBlue, user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
 	}
 	
 	function onSuccess(data)
