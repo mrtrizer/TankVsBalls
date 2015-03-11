@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Хост:                         127.0.0.1
+-- Хост:                         localhost
 -- Версия сервера:               5.5.41-0ubuntu0.14.04.1 - (Ubuntu)
 -- ОС Сервера:                   debian-linux-gnu
 -- HeidiSQL Версия:              8.3.0.4694
@@ -18,10 +18,12 @@ USE `tank`;
 -- Дамп структуры для таблица tank.game
 CREATE TABLE IF NOT EXISTS `game` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned DEFAULT '0',
   `key` binary(16) NOT NULL,
   `counter_red` int(10) unsigned NOT NULL DEFAULT '0',
   `counter_blue` int(10) unsigned NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `comment` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -32,6 +34,8 @@ CREATE TABLE IF NOT EXISTS `game` (
 CREATE TABLE IF NOT EXISTS `player` (
   `key` binary(16) NOT NULL,
   `name` char(100) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `auth_key` binary(16) DEFAULT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
