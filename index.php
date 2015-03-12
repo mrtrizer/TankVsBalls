@@ -1,4 +1,12 @@
-<!DOCTYPE html>
+<?php
+
+require_once('default_config.php');
+
+$link = mysql_connect($mysql_host, $mysql_login, $mysql_password)  or die ("Unable to connect to DB. ");
+mysql_set_charset('utf8',$link);
+$selected = mysql_select_db($mysql_db, $link);
+
+?><!DOCTYPE html>
 <html>
 <head>
 <title>Lab 1</title>
@@ -42,10 +50,10 @@
 	}
 	.window {
 		position: absolute;
-		width: 300px;
-		height: 250px;
-		margin-left: -150px;
-		margin-top: -125px;
+		width: 500px;
+		height: 400px;
+		margin-left: -250px;
+		margin-top: -200px;
 		background-color: #555;
 		visibility: hidden;
 		left:50%;
@@ -54,9 +62,9 @@
 		padding-top:15px;
 	}
 	
-	#loading_box {
-		width: 270px;
-		height: 110px;
+	#record_list {
+		width: calc(100% - 20px);
+		height: calc(100% - 150px);
 		background-color: #999;
 		overflow-y: scroll;
 	}
@@ -87,7 +95,24 @@
 		background-color: #7A7;
 	}
 	
+	#progress_bar {
+		width:300px;
+		height:20px;
+		background-color: #555;
+		position:absolute;
+		left:calc(50% - 150px);
+		top:calc(100% - 40px);
+	}
+	
+	#progress_line {
+		width: 0%;
+		height:100%;
+		background-color: #2F2;
+	}
+	
 </style>
+<script src="//vk.com/js/api/xd_connection.js?2" type="text/javascript"></script>
+
 <!-- libs -->
 <script src="js/three.js" type="text/javascript"></script>
 <script src="js/Mirror.js" type="text/javascript"></script>
@@ -147,7 +172,9 @@
     var curTankLevel = 0;
     var maxEnemyCount = 5;
     var maxEnemySpeed = 0;
-
+    var isInitialized = false;
+    var records = [];
+    var fullLoadCount = 0;
 
 	function getWidth() {
 		if (self.innerWidth) {
@@ -356,6 +383,8 @@ var loadCount = 0;
 	function loadObject(manager, name, textureList, textureName,onLoaded)
 	{
 		loadCount++;
+		if (loadCount > fullLoadCount)
+			fullLoadCount = loadCount;
 		var objLoader = new THREE.OBJLoader(manager);
 		objLoader.load(name, function(object) 
 		{
@@ -442,22 +471,12 @@ var loadCount = 0;
 		var window;
 		window = document.getElementById("loading_window");
 		window.style.visibility = "visible";
-		window = document.getElementById("start_window");
-		window.style.visibility = "hidden";
 	}
 	
 	function showStartWindow()
 	{
-		var window;
-		if (getCookie("name"))
-		{
-			showLoading();
-		}
-		else
-		{
-			window = document.getElementById("start_window");
-			window.style.visibility = "visible";
-		}
+		setName();
+		showLoading();
 	}
 
 	function initMap()
@@ -523,16 +542,90 @@ var loadCount = 0;
         window.addEventListener( 'resize', onWindowResize, false );
 	}
 
-    function init() {
-		showStartWindow();	
-        scene = new THREE.Scene();
-		// loading manager
-		var manager = new THREE.LoadingManager();
-		manager.onProgress = function ( item, loaded, total ) 
+	function findUser(id,usersInfo)
+	{
+		var result = null;  
+		for (var i in usersInfo)
 		{
-			document.getElementById("loading_box").innerHTML += "Resource: " + item + " " + loaded + " " + total + "<br />";
-		};
-        loadTextures(['tank1.png','tank2.png','tank3.png','grass.png','train.png','tree.png'], manager, loadObjects);
+			if(id == usersInfo[i].uid)
+			{
+				result = usersInfo[i];
+				break;
+			}
+		}
+		return result;
+	}
+
+	function usersLoaded(data)
+	{
+		console.log(data);
+		var usersJSON = eval(data).response;
+		var recordList = document.getElementById("record_list");
+		recordList.innerHTML = "";
+		for (var i in records)
+		{
+			var user = findUser(records[i].user_id,usersJSON);
+			if (user == null)
+				continue;
+			recordList.innerHTML += "<div><img width=25 src='" + user.photo_50 + "' />"+user.first_name + " " + user.last_name + " " + records[i].counter_red+"</div>";
+		}
+		
+	}
+
+	function loadUsers(onLoaded)
+	{
+		client.sendRequest("getrecords", {},"GET",function(data){
+			records = data.data;
+			console.log(data);
+			var userList = [];
+			for (var i in records)
+				userList[userList.length] = records[i].user_id;
+			console.log(userList);
+			VK.api('users.get',{user_ids:userList,fields:"photo_50"},onLoaded);
+		},
+		function(){console.log("ERROR");});
+	}
+
+    function initApp() {
+
+		if (isInitialized == false)
+		{
+			showStartWindow();	
+			scene = new THREE.Scene();
+			// loading manager
+			var manager = new THREE.LoadingManager();
+			manager.onProgress = function ( item, loaded, total ) 
+			{
+				//document.getElementById("loading_box").innerHTML += "Resource: " + item + " " + loaded + " " + total + "<br />";
+				//document.getElementById("progress_line").style.width = ((fullLoadCount - loadCount) * 100 / fullLoadCount).toFixed(2) + "%";
+				document.getElementById("progress_line").style.width = (loaded * 100 / total).toFixed(2) + "%";
+				
+			};
+			loadTextures(['tank1.png','tank2.png','tank3.png','grass.png','train.png','tree.png'], manager, loadObjects);
+		}
+		else
+		{
+			for (var j in bullets)
+				scene.remove(bullets[j].mesh);	
+			for (var i in enemies)
+				scene.remove(enemies[i].mesh);	
+			bullets = [];
+			enemies = [];
+			counter = 0;
+			counterBlue = 0;
+			player = {x:0,y:0,angle:0}
+			trainPause = 500;
+			bossCount = 0;
+			curTankLevel = 0;
+			maxEnemyCount = 5;
+			maxEnemySpeed = 0;
+			train.position.x = -340;
+			train.position.y = -600;
+			testTankLevel();
+			document.getElementById("finish_window").style.visibility = "hidden";
+			showLoading();
+		}
+		loadUsers(usersLoaded);
     }
 
 	function sign(a)
@@ -637,10 +730,7 @@ var loadCount = 0;
 
 	function setName()
 	{
-		var input = document.getElementById("name_input");
-		var name = input.value;
-		setCookie("name",name,{expires:3600 * 24 * 30});
-		client.sendRequest("setname", {key:getKey(), name:encodeURIComponent(name), user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
+		client.sendRequest("setname", {name:encodeURIComponent(name), user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
 	}
 
 	function gameOver()
@@ -649,11 +739,10 @@ var loadCount = 0;
 			return;
 		play = false;
 		var window = document.getElementById("finish_window");
-		window.innerHTML = "Игра окончена. <br />Ваш счет: " + counter + "<br /> <a href='./index.html'>Начать заново</a><br />" +
-			"<a href='https://vk.com/club88625833'>Группа вконтакте</a>";
+		window.innerHTML = "Игра окончена. <br />Ваш счет: " + counter + "<br /> <a href='#' onclick='initApp()'>Начать заново</a><br />"
 		window.style.visibility = "visible";
 		
-		client.sendRequest("gamefinish", {key:getKey(), counter_red:counter, counter_blue:counterBlue, user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
+		client.sendRequest("gamefinish", {counter_red:counter, counter_blue:counterBlue, user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
 	}
 	
 	function onSuccess(data)
@@ -670,12 +759,19 @@ var loadCount = 0;
 	{
 		var loadingWindow = document.getElementById("loading_window");
 		loadingWindow.style.visibility = "hidden";
-		shadows = document.getElementById("shadows_input").checked;
-		mirrors = document.getElementById("mirrors_input").checked;
-		initMap();
+		var progressBar = document.getElementById("progress_bar");
+		progressBar.style.visibility = "hidden";
+		if (isInitialized == false)
+		{
+			shadows = document.getElementById("shadows_input").checked;
+			mirrors = document.getElementById("mirrors_input").checked;
+			initMap();
+			timerId = setInterval(recalc, 40);
+			isInitialized = true;
+		}
 		play = true;
 		animate();
-		timerId = setInterval(recalc, 40);
+		
 	}
 
 	function onKeyDown(e)
@@ -774,8 +870,9 @@ var loadCount = 0;
 
 </script>
 </head>
-<body onload="init();" onkeydown="onKeyDown(event)" onkeyup="onKeyUp(event)" onmousemove="onMouseMove(event)" onclick="onClick(event)">
-	<div id="start_window" class="window">
+<body onload="VK.init(initApp)" onkeydown="onKeyDown(event)" onkeyup="onKeyUp(event)" onmousemove="onMouseMove(event)" onclick="onClick(event)">
+	<div id="progress_bar"><div id="progress_line"></div></div>
+	<div id="records_window" class="window">
 		Придумайте название для вашего девайса.<br />
 		Имя танка: <input type="text" id="name_input">
 		<div class="button" onclick="setName(); showLoading();">Ok</div>
@@ -787,7 +884,9 @@ var loadCount = 0;
 		Цель: Спасти себя от шаров.<br />
 		<input id="shadows_input" type="checkbox" checked>Включить тени<br />
 		<input id="mirrors_input" type="checkbox" checked>Включить отражения<br />
-		<div id="loading_box"></div>
+		Рекорды:
+		<div id="record_list">
+		</div>
 		<div class="button" id="start_button" onclick="startGame()">Начать игру</div>
 	</div>
 	<div id="finish_window" class="window">

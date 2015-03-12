@@ -25,19 +25,20 @@ $func = preg_replace('/[^A-Za-z0-9\-]/', '', $args['func']);
 
 if ($func == 'gamefinish')
 {
-	if (!array_key_exists('key',$args) || !array_key_exists('counter_red',$args) || !array_key_exists('counter_blue',$args))
+	if (!array_key_exists('user_id',$args) || 
+			!array_key_exists('counter_red',$args) || 
+				!array_key_exists('counter_blue',$args))
 		show_error(1);
 
-	$key = preg_replace('/[^A-Za-z0-9\-]/', '', $args['key']);
 	$counterRed = preg_replace('/[^0-9\-]/', '', $args['counter_red']);
 	$counterBlue = preg_replace('/[^0-9\-]/', '', $args['counter_blue']);
 	$userId = preg_replace('/[^0-9]/', '', $args['user_id']);
-	$authKey = preg_replace('/[^0-9a-fA-F]/', '', $args['user_id']);
+	$authKey = preg_replace('/[^0-9a-fA-F]/', '', $args['auth_key']);
 
 	$request = sprintf('
-		INSERT INTO `game` (`key`,`counter_red`,`counter_blue`,`user_id`) 
-		VALUES (0x%s,%d,%d,%d)',
-		$key,$counterRed,$counterBlue,$userId);
+		INSERT INTO `game` (`counter_red`,`counter_blue`,`user_id`) 
+		VALUES (%d,%d,%d)',
+		$counterRed,$counterBlue,$userId);
 		
 	mysql_query($request) or  show_error(5,mysql_error($link));
 
@@ -47,23 +48,41 @@ if ($func == 'gamefinish')
 
 if ($func == 'setname')
 {
-	if (!array_key_exists('key',$args) || !array_key_exists('name',$args))
+	if (!array_key_exists('user_id',$args) || 
+			!array_key_exists('auth_key',$args) || 
+				!array_key_exists('name',$args))
 		show_error(1);
 
-	$key = preg_replace('/[^A-Za-z0-9\-]/', '', $args['key']);
 	$name = urlencode(trim($args['name'],'"'));
 	$userId = preg_replace('/[^0-9]/', '', $args['user_id']);
 	$authKey = preg_replace('/[^0-9a-fA-F]/', '', $args['auth_key']);
 
 	$request = sprintf('
-		REPLACE INTO `player` (`key`,`name`,`user_id`,`auth_key`) 
-		VALUES (0x%s,"%s",%d,0x%s)',
-		$key,$name,$userId,$authKey);
+		REPLACE INTO `player` (`name`,`user_id`,`auth_key`) 
+		VALUES ("%s",%d,0x%s)',
+		$name,$userId,$authKey);
 		
 	mysql_query($request) or  show_error(5,mysql_error($link));
 
 	echo '{"error_code":0}';
 	exit;
 }
+
+if ($func == 'getrecords')
+{
+	$request = sprintf('
+		SELECT  `user_id`,`time`,`counter_red`,`counter_blue` 
+		FROM `game` ORDER BY `counter_red` DESC LIMIT 10');
+	$result = mysql_query($request, $link) or show_error(5,mysql_error($link));
+
+	$records = '[';
+	while ($row = mysql_fetch_array($result))
+		$records .= sprintf('{"user_id":%d,"time":"%s","counter_red":%d,"counter_blue":%d},',$row['user_id'],$row['time'],$row['counter_red'],$row['counter_blue']);
+	$records .= ']';
+	
+	echo '{"error_code":0, "data":'.$records.'}';
+	exit;
+}
+
 
 show_error(899,"Wrong function: ".$func);
