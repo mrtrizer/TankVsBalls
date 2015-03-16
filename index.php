@@ -64,7 +64,7 @@ $selected = mysql_select_db($mysql_db, $link);
 	
 	#record_list {
 		width: calc(100% - 20px);
-		height: calc(100% - 150px);
+		height: calc(100% - 170px);
 		background-color: #999;
 		overflow-y: scroll;
 	}
@@ -175,6 +175,8 @@ $selected = mysql_select_db($mysql_db, $link);
     var isInitialized = false;
     var records = [];
     var fullLoadCount = 0;
+    var star = null;
+    var starTemplate = null;
 
 	function getWidth() {
 		if (self.innerWidth) {
@@ -211,9 +213,8 @@ $selected = mysql_select_db($mysql_db, $link);
 		return false;
 	}
 
-	function isCollusion(mesh, point)
+	function isCollusion(mesh, point, size)
 	{
-		var size = enemyWidth / 2;
 		if (isInRange(mesh.position.x - size, mesh.position.x + size, point.x) &&
 				isInRange(mesh.position.y - size, mesh.position.y + size, point.y))
 			return true;
@@ -258,7 +259,7 @@ $selected = mysql_select_db($mysql_db, $link);
 		}
 		for (var i in enemies)
 		{
-			if (isCollusion(mesh,enemies[i].mesh.position))
+			if (isCollusion(mesh,enemies[i].mesh.position,30))
 			{
 				gameOver();
 				break;
@@ -266,9 +267,11 @@ $selected = mysql_select_db($mysql_db, $link);
 			var d1 = -enemies[i].mesh.position.x + mesh.position.x;
 			var d2 = enemies[i].mesh.position.y - mesh.position.y;
 			var angle = Math.atan2(d2,d1);
-			maxEnemySpeed =  2 * (counter + 50) / 100
+			maxEnemySpeed =  2 * (counter + 50) / 200
 			if (maxEnemySpeed > 4)
 				maxEnemySpeed = 4;
+			if (maxEnemySpeed < 1)
+				maxEnemySpeed = 1;
 			maxEnemyCount = counter / 30;
 			if (maxEnemyCount < 5)
 				maxEnemyCount = 5;
@@ -278,7 +281,7 @@ $selected = mysql_select_db($mysql_db, $link);
 				enemies[i].speed += 0.01;
 			for (var j in bullets)
 			{
-				if (isCollusion(enemies[i].mesh,bullets[j].mesh.position))
+				if (isCollusion(enemies[i].mesh,bullets[j].mesh.position,enemyWidth / 2))
 				{
 					scene.remove(bullets[j].mesh);			
 					bullets.splice(j,1);
@@ -291,7 +294,6 @@ $selected = mysql_select_db($mysql_db, $link);
 							counter += 1;
 						if (enemies[i].type == "blue")
 						{
-							counterBlue += 1;
 							counter += 20;
 						}
 						enemies.splice(i,1);
@@ -321,6 +323,23 @@ $selected = mysql_select_db($mysql_db, $link);
 				train.position.y = -600;
 				bossCount = 0;
 			}
+		}
+	}
+
+
+
+	function starsCtrl()
+	{
+		if (star == null)
+			star = setObject(starTemplate,getRand(-200,200),getRand(-200,200), 50,0);
+		star.rotation.z += 0.1;
+		star.rotation.я += 0.01;
+		if (isCollusion(mesh,star.position,50))
+		{
+			scene.remove(star);
+			star = null;
+			counter += Math.floor(5 * maxEnemySpeed);
+			testTankLevel();
 		}
 	}
 
@@ -431,11 +450,15 @@ var loadCount = 0;
 			clone.position.y = y;
 			clone.rotation.z = angle;
 			scene.add(clone);
+			return clone;
 	}
 
 	function loadObjects(manager, textureList)
 	{
 		// load model
+		loadObject(manager,'star.obj',textureList,'star.png', function (object){
+			starTemplate = object;
+			});
 		loadObject(manager,'tank1.obj',textureList,'tank1.png', function (object){
 			tank1 = object;
 			});
@@ -486,9 +509,9 @@ var loadCount = 0;
 
         geometry = new THREE.CircleGeometry( circleRadius, circleSegments );	
 
-		tankLevels = [	{tank:tank1, nextLevel:50, addBullets:addBullets1, power: 2},
-						{tank:tank2, nextLevel:100, addBullets:addBullets2, power: 1},
-						{tank:tank3, nextLevel:1000, addBullets:addBullets3, power: 1}]
+		tankLevels = [	{tank:tank1, nextLevel:100, addBullets:addBullets1, power: 2},
+						{tank:tank2, nextLevel:250, addBullets:addBullets2, power: 1},
+						{tank:tank3, nextLevel:10000, addBullets:addBullets3, power: 1}]
 						
 		testTankLevel();
 		
@@ -601,7 +624,7 @@ var loadCount = 0;
 				document.getElementById("progress_line").style.width = (loaded * 100 / total).toFixed(2) + "%";
 				
 			};
-			loadTextures(['tank1.png','tank2.png','tank3.png','grass.png','train.png','tree.png'], manager, loadObjects);
+			loadTextures(['star.png','tank1.png','tank2.png','tank3.png','grass.png','train.png','tree.png'], manager, loadObjects);
 		}
 		else
 		{
@@ -706,6 +729,7 @@ var loadCount = 0;
 		
 		enemyCtrl();
 		trainCtrl();
+		starsCtrl();
 	}
 	
     function animate() {
@@ -867,10 +891,28 @@ var loadCount = 0;
 		tankLevels[curTankLevel].addBullets(xOffset,yOffset);
 	}
 	
+	function onMusicCheck(e)
+	{
+		var audio = document.getElementById("music");
+		if (e.checked)
+		{
+			audio.currentTime = 0;
+			audio.autoplay = true;
+		}
+		else
+		{
+			audio.pause();
+			audio.currentTime = 0;
+			audio.autoplay = false;
+		}
+	}
 
 </script>
 </head>
 <body onload="VK.init(initApp)" onkeydown="onKeyDown(event)" onkeyup="onKeyUp(event)" onmousemove="onMouseMove(event)" onclick="onClick(event)">
+	<audio loop autoplay id="music">
+	  <source src="./music.mp3" type="audio/mpeg">
+	</audio>
 	<div id="progress_bar"><div id="progress_line"></div></div>
 	<div id="records_window" class="window">
 		Придумайте название для вашего девайса.<br />
@@ -884,6 +926,7 @@ var loadCount = 0;
 		Цель: Спасти себя от шаров.<br />
 		<input id="shadows_input" type="checkbox" checked>Включить тени<br />
 		<input id="mirrors_input" type="checkbox" checked>Включить отражения<br />
+		<input id="music_input" type="checkbox" onclick="onMusicCheck(this)" checked>Включить музыку<br />
 		Рекорды:
 		<div id="record_list">
 		</div>
