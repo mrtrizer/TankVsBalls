@@ -32,9 +32,9 @@ $selected = mysql_select_db($mysql_db, $link);
 		text-align: center;
 		z-index: 100;
 		display:block;
-		background-image:url('counter.png');
+		background-image:url('images/counter.png');
 		width:131px;
-		height:192px;
+		height:110px;
 	}
 	#counter1 {
 		position: absolute;
@@ -62,9 +62,48 @@ $selected = mysql_select_db($mysql_db, $link);
 		padding-top:15px;
 	}
 	
+	.start_menu {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-image:url(images/tank.png);
+	}
+	
+	.start_menu .content {
+		position: absolute;
+		width:100%;
+		height: calc(100% - 200px);
+		top: 170px;
+		left: 0px;
+	}
+	
+	#records {
+		position:absolute;
+		width:auto;
+		height:auto;
+		left:20px;
+		top:20px;
+	}
+	
+	#config {
+		position:absolute;
+		width:auto;
+		height:auto;
+		left:500px;
+		top:40px;	
+	}
+	
+	#game_start {
+		position:absolute;
+		width:auto;
+		height:auto;
+		left:500px;
+		top:300px;	
+	}
+	
 	#record_list {
-		width: calc(100% - 20px);
-		height: calc(100% - 170px);
+		width: 400px;
+		height: 300px;
 		background-color: #999;
 		overflow-y: scroll;
 	}
@@ -100,14 +139,24 @@ $selected = mysql_select_db($mysql_db, $link);
 		height:20px;
 		background-color: #555;
 		position:absolute;
-		left:calc(50% - 150px);
-		top:calc(100% - 40px);
+		left:180px;
+		top:50px;
 	}
 	
 	#progress_line {
 		width: 0%;
 		height:100%;
-		background-color: #2F2;
+		background-color: #A22;
+	}
+	
+	#controls {
+		position:absolute;
+		width:224px;
+		height:100px;
+		top:-150px;
+		left:calc(50% - 112px);
+		background-image:url(images/controls.png);
+		transition: 1s;
 	}
 	
 </style>
@@ -177,6 +226,7 @@ $selected = mysql_select_db($mysql_db, $link);
     var fullLoadCount = 0;
     var star = null;
     var starTemplate = null;
+    var helpShow = false;
 
 	function getWidth() {
 		if (self.innerWidth) {
@@ -303,7 +353,6 @@ $selected = mysql_select_db($mysql_db, $link);
 			}
 		}
 		document.getElementById("counter1").innerHTML = counter;
-		document.getElementById("counter2").innerHTML = counterBlue;
 	}
 
 	function trainCtrl()
@@ -763,7 +812,12 @@ var loadCount = 0;
 			return;
 		play = false;
 		var window = document.getElementById("finish_window");
-		window.innerHTML = "Игра окончена. <br />Ваш счет: " + counter + "<br /> <a href='#' onclick='initApp()'>Начать заново</a><br />"
+		var text = "Игра окончена. <br />Ваш счет: " + counter;
+		text += "<br /> <div class='button' onclick='initApp()'>В меню</div><br />";
+		//text += "<br>Если вам есть что сказать, напишите комментарий. Ваше мнение очень важно для нас!<br />";
+		//text += "<textarea cols=50 rows=5></textarea><br />";
+		//text += "<div class='button' onclick='initApp()'>Отправить</div>"
+		window.innerHTML = text;
 		window.style.visibility = "visible";
 		
 		client.sendRequest("gamefinish", {counter_red:counter, counter_blue:counterBlue, user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
@@ -785,6 +839,13 @@ var loadCount = 0;
 		loadingWindow.style.visibility = "hidden";
 		var progressBar = document.getElementById("progress_bar");
 		progressBar.style.visibility = "hidden";
+		if (helpShow == false)
+		{
+			var controls = document.getElementById("controls");
+			controls.style["top"] = "50px";
+			setTimeout(function(){controls.style["top"] = "-150px";},4000);
+			helpShow = true;
+		}
 		if (isInitialized == false)
 		{
 			shadows = document.getElementById("shadows_input").checked;
@@ -913,33 +974,41 @@ var loadCount = 0;
 	<audio loop autoplay id="music">
 	  <source src="./music.mp3" type="audio/mpeg">
 	</audio>
-	<div id="progress_bar"><div id="progress_line"></div></div>
 	<div id="records_window" class="window">
 		Придумайте название для вашего девайса.<br />
 		Имя танка: <input type="text" id="name_input">
 		<div class="button" onclick="setName(); showLoading();">Ok</div>
 		<div class="button" onclick="showLoading()">В другой раз</div>
 	</div>
-	<div id="loading_window" class="window">
-		Идет загрузка. <br />
-		Управление: WASD + мышь. <br />
-		Цель: Спасти себя от шаров.<br />
-		<input id="shadows_input" type="checkbox" checked>Включить тени<br />
-		<input id="mirrors_input" type="checkbox" checked>Включить отражения<br />
-		<input id="music_input" type="checkbox" onclick="onMusicCheck(this)" checked>Включить музыку<br />
-		Рекорды:
-		<div id="record_list">
+	<div id="loading_window" class="start_menu">
+		<div class="content">
+			<div id="records">
+				Рекорды:
+				<div id="record_list">
+				</div>
+			</div>
+			<div id="config">
+				<input id="shadows_input" type="checkbox" checked>Включить тени<br />
+				<input id="mirrors_input" type="checkbox" checked>Включить отражения<br />
+				<input id="music_input" type="checkbox" onclick="onMusicCheck(this)" checked>Включить музыку<br />
+			</div>
+			<div id="game_start">
+				<div class="button" id="start_button" onclick="startGame()">Начать игру</div>
+			</div>
+
 		</div>
-		<div class="button" id="start_button" onclick="startGame()">Начать игру</div>
+		<div id="progress_bar"><div id="progress_line"></div></div>
 	</div>
+
 	<div id="finish_window" class="window">
 		Игра окончена.
 	</div>
 	<div id="info">
 		<div id="counter1">
 		</div>
-		<div id="counter2">
-		</div>
+	</div>
+	<div id="controls">
+		
 	</div>
 </body>
 </html>

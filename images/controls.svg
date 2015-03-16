@@ -74,8 +74,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="282.47172"
-     inkscape:cy="723.41661"
+     inkscape:cx="371.18013"
+     inkscape:cy="870.07807"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -103,7 +103,9 @@
     <g
        id="g4220"
        transform="translate(55.188215,-5.5260747)"
-       style="stroke:#000000">
+       style="stroke:#000000"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686">
       <rect
          y="139.58301"
          x="151.50652"
@@ -127,7 +129,9 @@
     <g
        id="g4205"
        transform="translate(0.35714476,-5.5260747)"
-       style="stroke:#000000">
+       style="stroke:#000000"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686">
       <rect
          y="139.58301"
          x="87.220802"
@@ -151,7 +155,9 @@
     <g
        id="g4215"
        transform="translate(-69.370177,-3.3832219)"
-       style="stroke:#000000">
+       style="stroke:#000000"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686">
       <rect
          y="137.44016"
          x="216.50652"
@@ -175,7 +181,9 @@
     <g
        id="g4210-6"
        transform="translate(-3.3763872,-4.076608)"
-       style="stroke:#000000">
+       style="stroke:#000000"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686">
       <rect
          y="78.57515"
          x="150.51273"
@@ -202,7 +210,9 @@
        x="288.51605"
        y="165.54224"
        id="text4261"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686"><tspan
          sodipodi:role="line"
          id="tspan4263"
          x="288.51605"
@@ -215,12 +225,16 @@
        x="387.39349"
        y="78.57515"
        rx="37.628162"
-       ry="36.36549" />
+       ry="36.36549"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686" />
     <path
        style="opacity:1;fill:#ff6600;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.35714287;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        d="m 422.83375,79.227554 c -8.13865,0.538046 -16.28294,3.651193 -22.42257,9.07506 -7.40391,6.46119 -12.30955,15.954266 -12.31166,25.869136 -1.04992,3.16005 1.9804,2.36164 4.02832,2.38979 11.09089,-0.0665 22.292,0.13303 33.31403,-0.0998 -0.0665,-12.40043 0.13303,-24.911046 -0.0998,-37.242607 -0.83612,0.0035 -1.67235,-0.0084 -2.50837,0.0084 z"
        id="path4271"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686" />
     <rect
        style="opacity:1;fill:#666666;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4273"
@@ -229,14 +243,18 @@
        x="420.22345"
        y="103.82896"
        rx="3.1567428"
-       ry="4.9023647" />
+       ry="4.9023647"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15px;line-height:125%;font-family:Rachana;-inkscape-font-specification:Rachana;letter-spacing:0px;word-spacing:0px;fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="84.852814"
        y="47.260422"
        id="text4275"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="53.453686"
+       inkscape:export-ydpi="53.453686"><tspan
          sodipodi:role="line"
          id="tspan4277"
          x="84.852814"

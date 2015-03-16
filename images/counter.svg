@@ -58,7 +58,7 @@
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(2.9365807,0,0,2.9365807,-199.17455,-296.28013)" />
     <radialGradient
-       gradientTransform="matrix(2.9365807,0,0,2.9365807,-201.39936,-71.575734)"
+       gradientTransform="matrix(2.9365807,0,0,2.9365807,-217.5618,352.68834)"
        inkscape:collect="always"
        xlink:href="#linearGradient4218"
        id="radialGradient4178-4"
@@ -76,9 +76,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.24748737"
-     inkscape:cx="-618.44995"
-     inkscape:cy="805.43088"
+     inkscape:zoom="0.49497474"
+     inkscape:cx="601.56457"
+     inkscape:cy="870.52014"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -95,7 +95,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -106,35 +106,34 @@
     <rect
        style="opacity:1;fill:#443f3f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4239"
-       width="35.596733"
+       width="107.31757"
        height="69.710266"
-       x="230.95265"
-       y="48.668343" />
-    <rect
-       style="opacity:1;fill:#443f3f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect4239-3"
-       width="35.596733"
-       height="69.710266"
-       x="450.46582"
-       y="47.926712" />
+       x="306.71408"
+       y="48.668343"
+       inkscape:export-xdpi="30.090883"
+       inkscape:export-ydpi="30.090883" />
     <rect
        style="opacity:1;fill:#5a5a5a;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4136-5"
-       width="392.14838"
-       height="510.21988"
+       width="392.14835"
+       height="263.74268"
        x="167.17514"
        y="113.92898"
        rx="17.945259"
-       ry="12.698774" />
+       ry="12.698774"
+       inkscape:export-xdpi="30.090883"
+       inkscape:export-ydpi="30.090883" />
     <rect
        style="opacity:1;fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4136"
        width="370.79932"
-       height="489.45508"
+       height="244.99817"
        x="177.55751"
        y="122.82818"
        rx="16.968298"
-       ry="12.181964" />
+       ry="12.181964"
+       inkscape:export-xdpi="30.090883"
+       inkscape:export-ydpi="30.090883" />
     <rect
        style="opacity:1;fill:#777777;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4138"
@@ -143,14 +142,16 @@
        x="219.0871"
        y="153.9753"
        rx="16.968298"
-       ry="12.181964" />
+       ry="12.181964"
+       inkscape:export-xdpi="30.090883"
+       inkscape:export-ydpi="30.090883" />
     <rect
        style="opacity:1;fill:#777777;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4138-1"
        width="293.67303"
        height="182.43326"
-       x="216.12067"
-       y="380.16287"
+       x="199.95822"
+       y="804.42694"
        rx="16.968298"
        ry="12.181964" />
     <circle
@@ -158,12 +159,14 @@
        id="path4170"
        cx="259.875"
        cy="194.76328"
-       r="31.888739" />
+       r="31.888739"
+       inkscape:export-xdpi="30.090883"
+       inkscape:export-ydpi="30.090883" />
     <circle
        style="opacity:1;fill:url(#radialGradient4178-4);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="path4170-5"
-       cx="257.65021"
-       cy="419.46762"
+       cx="241.48776"
+       cy="843.73169"
        r="31.888739" />
   </g>
 </svg>
