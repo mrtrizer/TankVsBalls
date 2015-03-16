@@ -908,9 +908,9 @@ var loadCount = 0;
 		headAngle = Math.atan2(d1,d2);
 	}
 
-	function addBullet(x,y,angle,size)
+	function addBullet(x,y,angle,size,color)
 	{
-		var bulletMesh = new THREE.Mesh( new THREE.CircleGeometry( size,8), new THREE.MeshBasicMaterial( {color: 0xff9900} ) );
+		var bulletMesh = new THREE.Mesh( new THREE.CircleGeometry( size,8), new THREE.MeshBasicMaterial( {color: color} ) );
 		bulletMesh.position.x = x;
 		bulletMesh.position.y = y;
 		bulletMesh.position.z = mesh.position.z + 4 ;
@@ -918,30 +918,30 @@ var loadCount = 0;
 		scene.add(bulletMesh);
 	}
 
-	function addBullets1(xOffset,yOffset)
+	function addBullets1(xOffset,yOffset,dist)
 	{
-		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + 30 * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y + yOffset / 2 - 0 * yOffset - 30 * Math.sin(headAngle - Math.PI / 2),headAngle,5);
+		addBullet(mesh.position.x + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y - dist * Math.sin(headAngle - Math.PI / 2),headAngle,5,0x00BFFF);
 	}
 
-	function addBullets2(xOffset,yOffset)
+	function addBullets2(xOffset,yOffset,dist)
 	{
-		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + 30 * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y + yOffset / 2 - 0 * yOffset - 30 * Math.sin(headAngle - Math.PI / 2),headAngle,3);
-		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + 30 * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y + yOffset / 2 - 1 * yOffset - 30 * Math.sin(headAngle - Math.PI / 2),headAngle,3);
+		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,3,0x00BFFF);
+		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,3,0x00BFFF);
 	}
 
-	function addBullets3(xOffset,yOffset)
+	function addBullets3(xOffset,yOffset,dist)
 	{
-		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + 30 * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y + yOffset / 2 - 0 * yOffset - 30 * Math.sin(headAngle - Math.PI / 2),headAngle,3);
-		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + 30 * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y + yOffset / 2 - 1 * yOffset - 30 * Math.sin(headAngle - Math.PI / 2),headAngle,3);
-		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + 30 * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y + yOffset / 2 - 0 * yOffset - 30 * Math.sin(headAngle - Math.PI / 2),headAngle + Math.PI / 9,3);
-		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + 30 * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y + yOffset / 2 - 1 * yOffset - 30 * Math.sin(headAngle - Math.PI / 2),headAngle - Math.PI / 9,3);
+		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,3,0x00BFFF);
+		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,3,0x00BFFF);
+		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle + Math.PI / 9,3,0xff9900);
+		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle - Math.PI / 9,3,0xff9900);
 	}
 
 	function onClick(e)
@@ -949,7 +949,7 @@ var loadCount = 0;
 		var xOffset = 10 * Math.cos(headAngle);
 		var yOffset = 10 * Math.sin(headAngle);
 		
-		tankLevels[curTankLevel].addBullets(xOffset,yOffset);
+		tankLevels[curTankLevel].addBullets(xOffset,yOffset,55);
 	}
 	
 	function onMusicCheck(e)
