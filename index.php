@@ -958,20 +958,19 @@ var loadCount = 0;
 		if (e.checked)
 		{
 			audio.currentTime = 0;
-			audio.autoplay = true;
+			audio.play();
 		}
 		else
 		{
 			audio.pause();
 			audio.currentTime = 0;
-			audio.autoplay = false;
 		}
 	}
 
 </script>
 </head>
 <body onload="VK.init(initApp)" onkeydown="onKeyDown(event)" onkeyup="onKeyUp(event)" onmousemove="onMouseMove(event)" onclick="onClick(event)">
-	<audio loop autoplay id="music">
+	<audio loop id="music">
 	  <source src="./music.mp3" type="audio/mpeg">
 	</audio>
 	<div id="records_window" class="window">
@@ -990,7 +989,7 @@ var loadCount = 0;
 			<div id="config">
 				<input id="shadows_input" type="checkbox" checked>Включить тени<br />
 				<input id="mirrors_input" type="checkbox" checked>Включить отражения<br />
-				<input id="music_input" type="checkbox" onclick="onMusicCheck(this)" checked>Включить музыку<br />
+				<input id="music_input" type="checkbox" onclick="onMusicCheck(this)">Включить музыку<br />
 			</div>
 			<div id="game_start">
 				<div class="button" id="start_button" onclick="startGame()">Начать игру</div>
