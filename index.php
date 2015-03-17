@@ -98,7 +98,7 @@ $selected = mysql_select_db($mysql_db, $link);
 		width:auto;
 		height:auto;
 		left:500px;
-		top:300px;	
+		top:260px;	
 	}
 	
 	#record_list {
@@ -157,6 +157,44 @@ $selected = mysql_select_db($mysql_db, $link);
 		left:calc(50% - 112px);
 		background-image:url(images/controls.png);
 		transition: 1s;
+	}
+	
+	.record_item {
+		display:block;
+		vertical-align:middle;
+		margin:1px;
+		height: 28px;
+		vertical-align:middle;
+		background-color:#888;
+		border:1px solid #666;
+		position:relative;
+	}
+	
+	.user_name {
+		vertical-align:middle;
+		display:block;
+		position:absolute;
+		top:7px;
+		left:50px;
+	}
+	
+	.user_img {
+		vertical-align:middle;
+		display:block;
+		position:absolute;
+		top:1px;
+		left:16px;
+	}
+	
+	.score_value {
+		position:absolute;
+		top:7px;
+		left:340px;
+	}
+	
+	.record_n {
+		position:absolute;
+		top:7px;
 	}
 	
 </style>
@@ -227,6 +265,7 @@ $selected = mysql_select_db($mysql_db, $link);
     var star = null;
     var starTemplate = null;
     var helpShow = false;
+    var anonymous = false;
 
 	function getWidth() {
 		if (self.innerWidth) {
@@ -639,7 +678,8 @@ var loadCount = 0;
 			var user = findUser(records[i].user_id,usersJSON);
 			if (user == null)
 				continue;
-			recordList.innerHTML += "<div><img width=25 src='" + user.photo_50 + "' />"+user.first_name + " " + user.last_name + " " + records[i].counter_red+"</div>";
+			var n = parseInt(i) + 1;
+			recordList.innerHTML += "<div class='record_item'><div class='record_n'>" + n + "</div><img class='user_img' width=25 src='"+user.photo_50+"' /><div class='user_name'>"+user.first_name+" "+user.last_name+" </div><div class='score_value'>"+records[i].counter_red+"</div></div>";
 		}
 		
 	}
@@ -668,8 +708,6 @@ var loadCount = 0;
 			var manager = new THREE.LoadingManager();
 			manager.onProgress = function ( item, loaded, total ) 
 			{
-				//document.getElementById("loading_box").innerHTML += "Resource: " + item + " " + loaded + " " + total + "<br />";
-				//document.getElementById("progress_line").style.width = ((fullLoadCount - loadCount) * 100 / fullLoadCount).toFixed(2) + "%";
 				document.getElementById("progress_line").style.width = (loaded * 100 / total).toFixed(2) + "%";
 				
 			};
@@ -819,8 +857,8 @@ var loadCount = 0;
 		//text += "<div class='button' onclick='initApp()'>Отправить</div>"
 		window.innerHTML = text;
 		window.style.visibility = "visible";
-		
-		client.sendRequest("gamefinish", {counter_red:counter, counter_blue:counterBlue, user_id:userId, auth_key:authKey},"POST",onSuccess,onError);
+		document.getElementById("anonymous").checked = false;
+		client.sendRequest("gamefinish", {counter_red:counter, counter_blue:counterBlue, user_id:userId, auth_key:authKey, anonymous:anonymous?1:0},"POST",onSuccess,onError);
 	}
 	
 	function onSuccess(data)
@@ -839,6 +877,7 @@ var loadCount = 0;
 		loadingWindow.style.visibility = "hidden";
 		var progressBar = document.getElementById("progress_bar");
 		progressBar.style.visibility = "hidden";
+		anonymous = document.getElementById("anonymous").checked;
 		if (helpShow == false)
 		{
 			var controls = document.getElementById("controls");
@@ -973,12 +1012,6 @@ var loadCount = 0;
 	<audio loop id="music">
 	  <source src="./music.mp3" type="audio/mpeg">
 	</audio>
-	<div id="records_window" class="window">
-		Придумайте название для вашего девайса.<br />
-		Имя танка: <input type="text" id="name_input">
-		<div class="button" onclick="setName(); showLoading();">Ok</div>
-		<div class="button" onclick="showLoading()">В другой раз</div>
-	</div>
 	<div id="loading_window" class="start_menu">
 		<div class="content">
 			<div id="records">
@@ -992,6 +1025,7 @@ var loadCount = 0;
 				<input id="music_input" type="checkbox" onclick="onMusicCheck(this)">Включить музыку<br />
 			</div>
 			<div id="game_start">
+				<input id="anonymous" type="checkbox">Тренировка<br />(Результат не сохраняется)<br />
 				<div class="button" id="start_button" onclick="startGame()">Начать игру</div>
 			</div>
 

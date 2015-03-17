@@ -34,11 +34,12 @@ if ($func == 'gamefinish')
 	$counterBlue = preg_replace('/[^0-9\-]/', '', $args['counter_blue']);
 	$userId = preg_replace('/[^0-9]/', '', $args['user_id']);
 	$authKey = preg_replace('/[^0-9a-fA-F]/', '', $args['auth_key']);
+	$anonymous = preg_replace('/[^0-1]/', '', $args['anonymous']);
 
 	$request = sprintf('
-		INSERT INTO `game` (`counter_red`,`counter_blue`,`user_id`) 
-		VALUES (%d,%d,%d)',
-		$counterRed,$counterBlue,$userId);
+		INSERT INTO `game` (`counter_red`,`counter_blue`,`user_id`,`anonymous`) 
+		VALUES (%d,%d,%d,%d)',
+		$counterRed,$counterBlue,$userId,$anonymous);
 		
 	mysql_query($request) or  show_error(5,mysql_error($link));
 
@@ -72,7 +73,7 @@ if ($func == 'getrecords')
 {
 	$request = sprintf('
 		SELECT  `user_id`,`time`,MAX(`counter_red`) as `counter_red`,`counter_blue` 
-		FROM `game` GROUP BY `user_id` ORDER BY `counter_red` DESC LIMIT 10 ');
+		FROM `game` WHERE `anonymous`=0 GROUP BY `user_id` ORDER BY `counter_red` DESC LIMIT 10 ');
 	$result = mysql_query($request, $link) or show_error(5,mysql_error($link));
 
 	$records = '[';
