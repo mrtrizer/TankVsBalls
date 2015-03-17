@@ -26,7 +26,7 @@ $selected = mysql_select_db($mysql_db, $link);
 	
 	#info {
 		position: absolute;
-		top: 0px;
+		top: 10px;
 		font-size: 30px;
 		left: 10px;
 		text-align: center;
@@ -39,7 +39,7 @@ $selected = mysql_select_db($mysql_db, $link);
 	#counter1 {
 		position: absolute;
 		left:50px;
-		top:50px;
+		top:30px;
 		color:#A00;
 	}
 	#counter2 {
@@ -195,6 +195,12 @@ $selected = mysql_select_db($mysql_db, $link);
 	.record_n {
 		position:absolute;
 		top:7px;
+	}
+	
+	#logo {
+		position:absolute;
+		top:calc(100% - 30px);
+		left:10px;
 	}
 	
 </style>
@@ -599,7 +605,8 @@ var loadCount = 0;
 
 		tankLevels = [	{tank:tank1, nextLevel:100, addBullets:addBullets1, power: 2},
 						{tank:tank2, nextLevel:250, addBullets:addBullets2, power: 1},
-						{tank:tank3, nextLevel:10000, addBullets:addBullets3, power: 1}]
+						{tank:tank3, nextLevel:500, addBullets:addBullets3, power: 1},
+						{tank:tank3, nextLevel:10000, addBullets:addBullets4, power: 2}]
 						
 		testTankLevel();
 		
@@ -983,6 +990,18 @@ var loadCount = 0;
 					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle - Math.PI / 9,3,0xff9900);
 	}
 
+	function addBullets4(xOffset,yOffset,dist)
+	{
+		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,5,0x00BFFF);
+		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,5,0x00BFFF);
+		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle + Math.PI / 9,5,0x00BFFF);
+		addBullet(mesh.position.x - xOffset / 2 + 1 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
+					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle - Math.PI / 9,5,0x00BFFF);
+	}
+
 	function onClick(e)
 	{
 		var xOffset = 10 * Math.cos(headAngle);
@@ -1043,5 +1062,6 @@ var loadCount = 0;
 	<div id="controls">
 		
 	</div>
+	<div id="logo"><img src="images/logo.png" width=25>v0.2 beta</div>
 </body>
 </html>
