@@ -71,8 +71,8 @@ if ($func == 'setname')
 if ($func == 'getrecords')
 {
 	$request = sprintf('
-		SELECT  `user_id`,`time`,`counter_red`,`counter_blue` 
-		FROM `game` ORDER BY `counter_red` DESC LIMIT 10');
+		SELECT  `user_id`,`time`,MAX(`counter_red`) as `counter_red`,`counter_blue` 
+		FROM `game` GROUP BY `user_id` ORDER BY `counter_red` DESC LIMIT 10 ');
 	$result = mysql_query($request, $link) or show_error(5,mysql_error($link));
 
 	$records = '[';

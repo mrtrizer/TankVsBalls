@@ -910,7 +910,7 @@ var loadCount = 0;
 
 	function addBullet(x,y,angle,size,color)
 	{
-		var bulletMesh = new THREE.Mesh( new THREE.CircleGeometry( size,8), new THREE.MeshBasicMaterial( {color: color} ) );
+		var bulletMesh = new THREE.Mesh( new THREE.SphereGeometry( size,8), new THREE.MeshBasicMaterial( {color: color} ) );
 		bulletMesh.position.x = x;
 		bulletMesh.position.y = y;
 		bulletMesh.position.z = mesh.position.z + 4 ;
@@ -921,7 +921,7 @@ var loadCount = 0;
 	function addBullets1(xOffset,yOffset,dist)
 	{
 		addBullet(mesh.position.x + dist * Math.cos(headAngle - Math.PI / 2),
-					mesh.position.y - dist * Math.sin(headAngle - Math.PI / 2),headAngle,5,0x00BFFF);
+					mesh.position.y - dist * Math.sin(headAngle - Math.PI / 2),headAngle,5,0x0000FF);
 	}
 
 	function addBullets2(xOffset,yOffset,dist)
