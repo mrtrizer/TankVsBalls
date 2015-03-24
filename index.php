@@ -209,7 +209,7 @@ $selected = mysql_select_db($mysql_db, $link);
 	#logo {
 		position:absolute;
 		top:10px;
-		left:calc(100% - 90px);
+		left:10px;
 	}
 	
 </style>
