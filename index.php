@@ -35,6 +35,7 @@ $selected = mysql_select_db($mysql_db, $link);
 		background-image:url('images/counter.png');
 		width:131px;
 		height:110px;
+		visibility: hidden;
 	}
 	#counter1 {
 		position: absolute;
@@ -81,8 +82,8 @@ $selected = mysql_select_db($mysql_db, $link);
 		position:absolute;
 		width:auto;
 		height:auto;
-		left:20px;
-		top:20px;
+		left:50px;
+		top:60px;
 	}
 	
 	#config {
@@ -90,7 +91,7 @@ $selected = mysql_select_db($mysql_db, $link);
 		width:auto;
 		height:auto;
 		left:500px;
-		top:40px;	
+		top:80px;	
 	}
 	
 	#game_start {
@@ -106,6 +107,7 @@ $selected = mysql_select_db($mysql_db, $link);
 		height: 300px;
 		background-color: #999;
 		overflow-y: scroll;
+		border:1px solid #666;
 	}
 	
 	.button {
@@ -134,19 +136,26 @@ $selected = mysql_select_db($mysql_db, $link);
 		background-color: #7A7;
 	}
 	
+	#progress {
+		left:50px;
+		top:100px;
+		position:absolute;
+	}
+	
 	#progress_bar {
-		width:300px;
+		width:400px;
 		height:20px;
 		background-color: #555;
+		left:0px;
+		top:20px;
 		position:absolute;
-		left:180px;
-		top:50px;
+		border:1px solid #666;
 	}
 	
 	#progress_line {
 		width: 0%;
 		height:100%;
-		background-color: #A22;
+		background-color: #2A2;
 	}
 	
 	#controls {
@@ -199,8 +208,8 @@ $selected = mysql_select_db($mysql_db, $link);
 	
 	#logo {
 		position:absolute;
-		top:calc(100% - 30px);
-		left:10px;
+		top:10px;
+		left:calc(100% - 90px);
 	}
 	
 </style>
@@ -882,8 +891,10 @@ var loadCount = 0;
 	{
 		var loadingWindow = document.getElementById("loading_window");
 		loadingWindow.style.visibility = "hidden";
-		var progressBar = document.getElementById("progress_bar");
+		var progressBar = document.getElementById("progress");
 		progressBar.style.visibility = "hidden";
+		var progressBar = document.getElementById("info");
+		progressBar.style.visibility = "visible";
 		anonymous = document.getElementById("anonymous").checked;
 		if (helpShow == false)
 		{
@@ -1049,7 +1060,10 @@ var loadCount = 0;
 			</div>
 
 		</div>
-		<div id="progress_bar"><div id="progress_line"></div></div>
+		<div id="progress">
+			Загрузка:
+			<div id="progress_bar"><div id="progress_line"></div></div>
+		</div>
 	</div>
 
 	<div id="finish_window" class="window">
