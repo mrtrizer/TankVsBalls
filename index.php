@@ -223,9 +223,9 @@ $selected = mysql_select_db($mysql_db, $link);
 <script src="tools.js" type="text/javascript"></script>
 
 <script>
-	var userId = <?php if ($_GET["viewer_id"]) echo $_GET["viewer_id"]; else echo "-1";?>;
-	var apiId = <?php if ($_GET["api_id"]) echo $_GET["api_id"]; else echo "-1";?>;
-	var authKey = "<?php if ($_GET["auth_key"]) echo $_GET["auth_key"]; else echo "-1";?>";
+	var userId = <?php if (array_key_exists("viewer_id",$_GET)) echo $_GET["viewer_id"]; else echo "-1";?>;
+	var apiId = <?php if (array_key_exists("api_id",$_GET)) echo $_GET["api_id"]; else echo "-1";?>;
+	var authKey = "<?php if (array_key_exists("auth_key",$_GET)) echo $_GET["auth_key"]; else echo "-1";?>";
     var scene, camera, renderer;
     var geometry, material, material1;
     var mesh;
@@ -709,7 +709,8 @@ var loadCount = 0;
 			for (var i in records)
 				userList[userList.length] = records[i].user_id;
 			console.log(userList);
-			VK.api('users.get',{user_ids:userList,fields:"photo_50"},onLoaded);
+			if (VK)
+				VK.api('users.get',{user_ids:userList,fields:"photo_50"},onLoaded);
 		},
 		function(){console.log("ERROR");});
 	}
@@ -1036,9 +1037,17 @@ var loadCount = 0;
 		}
 	}
 
+	function bodyLoaded()
+	{
+		if (typeof VK !== 'undefined')
+			VK.init(initApp);
+		else
+			initApp();
+	}
+
 </script>
 </head>
-<body onload="VK.init(initApp)" onkeydown="onKeyDown(event)" onkeyup="onKeyUp(event)" onmousemove="onMouseMove(event)" onclick="onClick(event)">
+<body onload="bodyLoaded()" onkeydown="onKeyDown(event)" onkeyup="onKeyUp(event)" onmousemove="onMouseMove(event)" onclick="onClick(event)">
 	<audio loop id="music">
 	  <source src="./music.mp3" type="audio/mpeg">
 	</audio>
