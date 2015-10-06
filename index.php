@@ -272,6 +272,7 @@ $selected = mysql_select_db($mysql_db, $link);
     var trainSpeed = 2;
     var tankLevels = [];
     var curTankLevel = 0;
+    var curTankLevelPrev = 0;
     var maxEnemyCount = 5;
     var maxEnemySpeed = 0;
     var isInitialized = false;
@@ -281,6 +282,7 @@ $selected = mysql_select_db($mysql_db, $link);
     var starTemplate = null;
     var helpShow = false;
     var anonymous = false;
+    var boxes = [];
 
 	function getWidth() {
 		if (self.innerWidth) {
@@ -325,14 +327,14 @@ $selected = mysql_select_db($mysql_db, $link);
 		return false;
 	}
 
-	function createEnemy(x,y,z,health,color,type,size)
+	function createEnemy(x,y,z,health,color,type,size,target)
 	{
 		var enemyMesh = new THREE.Mesh( new THREE.SphereGeometry(size, 6, 6 ), 
 											new THREE.MeshPhongMaterial( { color:color }));
 		enemyMesh.position.x = x;
 		enemyMesh.position.y = y;
 		enemyMesh.position.z = z;
-		enemies[enemies.length] = {mesh:enemyMesh, health:health, type:type, speed: maxEnemySpeed};
+		enemies[enemies.length] = {mesh:enemyMesh, health:health, type:type, speed: maxEnemySpeed, target:target};
 		enemyMesh.castShadow = true;
 		enemyMesh.receiveShadow = true;
 		scene.add(enemyMesh);
@@ -343,7 +345,16 @@ $selected = mysql_select_db($mysql_db, $link);
 		var posList = [{x: -300,y: -300}, {x: 300,y: -300}, {x: 300,y: 300}, {x: -300,y: 300}];
 		var x = getRand(posList[pos].x, - posList[pos].x);
 		var y = posList[pos].y;
-		createEnemy(x,y,20,2, 0xff2200, "red",15);
+		var target = "player";
+		var color = 0xff2200;
+		var size = 15;
+		if (getRand(0,6) > 1)
+		{
+			target = "star";
+			var size = 10;
+			color = 0x000000;
+		}
+		createEnemy(x,y,20,2, color, "red",size,target);
 	}
 
 	function enemyCtrl()
@@ -363,13 +374,20 @@ $selected = mysql_select_db($mysql_db, $link);
 		}
 		for (var i in enemies)
 		{
-			if (isCollusion(mesh,enemies[i].mesh.position,30))
+			var target = null;
+			if (enemies[i].target == "player")
+				target = mesh;
+			if (enemies[i].target == "star")
+				target = star;
+			if (target == null)
+				break;
+			if (isCollusion(target,enemies[i].mesh.position,10))
 			{
 				gameOver();
 				break;
 			}
-			var d1 = -enemies[i].mesh.position.x + mesh.position.x;
-			var d2 = enemies[i].mesh.position.y - mesh.position.y;
+			var d1 = -enemies[i].mesh.position.x + target.position.x;
+			var d2 = enemies[i].mesh.position.y - target.position.y;
 			var angle = Math.atan2(d2,d1);
 			maxEnemySpeed =  2 * (counter + 50) / 200
 			if (maxEnemySpeed > 4)
@@ -417,7 +435,7 @@ $selected = mysql_select_db($mysql_db, $link);
 			train.position.y += trainSpeed;
 			if ((train.position.y > 0) && (train.position.y < 10) && (bossCount < 1))
 			{
-				createEnemy(-340,train.position.y + 15,30,10,0x4444ff,"blue",20);
+				createEnemy(-340,train.position.y + 15,30,10,0x4444ff,"blue",20,"player");
 				bossCount += 1;
 			}
 			if (train.position.y > 500)
@@ -429,14 +447,48 @@ $selected = mysql_select_db($mysql_db, $link);
 		}
 	}
 
-
+	function boxCtrl()
+	{
+		for (var i in boxes)
+			if (isCollusion(mesh,boxes[i].position,30))
+			{
+				curTankLevel += 1;
+				scene.remove(boxes[i]);
+				boxes.splice(i,1);
+				if (tankLevels[curTankLevel].tank != mesh)
+				{
+					scene.remove(mesh);
+					mesh = tankLevels[curTankLevel].tank;
+					scene.add(mesh);
+				}
+			}
+	}
 
 	function starsCtrl()
 	{
 		if (star == null)
-			star = setObject(starTemplate,getRand(-200,200),getRand(-200,200), 50,0);
+		{
+			var starPos = {position:{}};
+			var n = 0;
+			var collusion = true;
+			while (collusion && (n < 100))
+			{
+				starPos.position.x = getRand(-200,200);
+				starPos.position.y = getRand(-200,200);
+				collusion = false;
+				n++;
+				for (var i in enemies)
+				{
+					if (isCollusion(starPos,enemies[i].mesh.position,100))
+					{
+						collusion = true;
+						break;
+					}
+				}
+			}
+			star = setObject(starTemplate,starPos.position.x,starPos.position.y, 50,0);
+		}
 		star.rotation.z += 0.1;
-		star.rotation.я += 0.01;
 		if (isCollusion(mesh,star.position,50))
 		{
 			scene.remove(star);
@@ -451,20 +503,15 @@ $selected = mysql_select_db($mysql_db, $link);
 	  return Math.floor(Math.random() * (max - min) + min);
 	}
 
-	function createShape()
+	function createBox(x,y)
 	{
-		var mesh;
-		var rectLength = 120, rectWidth = 40;
-		var rectShape = new THREE.Shape();
-		rectShape.moveTo( 0,0 );
-		rectShape.lineTo( 0, rectWidth);
-		rectShape.lineTo( rectLength, rectWidth );
-		rectShape.lineTo( rectLength, 0 );
-		rectShape.lineTo( 0, 0 );
-
-		var rectGeom = new THREE.ShapeGeometry( rectShape );
-		var mesh = new THREE.Mesh( rectGeom, new THREE.MeshBasicMaterial( { color: 0xff0000 } ) ) ;	
-		return mesh;
+		var geometry = new THREE.BoxGeometry( 30, 30, 30 );
+		var material = new THREE.MeshBasicMaterial( {color: 0x61380B} );
+		var cube = new THREE.Mesh( geometry, material );
+		boxes[boxes.length] = cube;
+		cube.position.x = x;
+		cube.position.y = y;
+		scene.add( cube );
 	}
 
 
@@ -534,13 +581,10 @@ var loadCount = 0;
 
 	function testTankLevel()
 	{
-		if (counter > tankLevels[curTankLevel].nextLevel)
-			curTankLevel += 1;
-		if (tankLevels[curTankLevel].tank != mesh)
+		if (counter > tankLevels[curTankLevelPrev].nextLevel)
 		{
-			scene.remove(mesh);
-			mesh = tankLevels[curTankLevel].tank;
-			scene.add(mesh);
+			createBox(getRand(-200,200),getRand(-200,200));
+			curTankLevelPrev++;
 		}
 	}
 
@@ -612,12 +656,17 @@ var loadCount = 0;
 
         geometry = new THREE.CircleGeometry( circleRadius, circleSegments );	
 
-		tankLevels = [	{tank:tank1, nextLevel:100, addBullets:addBullets1, power: 2},
-						{tank:tank2, nextLevel:250, addBullets:addBullets2, power: 1},
-						{tank:tank3, nextLevel:500, addBullets:addBullets3, power: 1},
+		tankLevels = [	{tank:tank1, nextLevel:70, addBullets:addBullets1, power: 2},
+						{tank:tank2, nextLevel:120, addBullets:addBullets2, power: 1},
+						{tank:tank3, nextLevel:220, addBullets:addBullets3, power: 1},
 						{tank:tank3, nextLevel:10000, addBullets:addBullets4, power: 2}]
 						
 		testTankLevel();
+		
+		curTankLevel = 0;
+		
+		mesh = tankLevels[curTankLevel].tank;
+		scene.add(mesh);
 		
 		sunLight = new THREE.DirectionalLight( 0xffffaa, 1.3 );
 		if (shadows)
@@ -834,6 +883,7 @@ var loadCount = 0;
 		enemyCtrl();
 		trainCtrl();
 		starsCtrl();
+		boxCtrl();
 	}
 	
     function animate() {
@@ -921,11 +971,11 @@ var loadCount = 0;
 	{
 		if (e.keyCode == 65)
 		{
-			bodyAngleSpeed = -1;
+			bodyAngleSpeed = -2;
 		}
 		if (e.keyCode == 68)
 		{
-			bodyAngleSpeed = 1;
+			bodyAngleSpeed = 2;
 		}
 		if (e.keyCode == 87)
 		{
