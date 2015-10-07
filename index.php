@@ -245,6 +245,15 @@ $selected = mysql_select_db($mysql_db, $link);
     var enemies = [];
     var counter = 0;
     var counterBlue = 0;
+    var waves = [
+    {redCount:3, blackCount:5, pause:10000},
+    {redCount:10, blackCount:10, pause:20000},
+    {redCount:15, blackCount:20, pause:35000},
+    {redCount:20, blackCount:30, pause:40000},
+    {redCount:30, blackCount:40, pause:50000},
+    {redCount:40, blackCount:50, pause:55000},
+    {redCount:45, blackCount:55, pause:10000},
+    {redCount:0, blackCount:0, pause:0}]
     var enemyWidth = 25;
     var playerSpeed = 6;
     var playerAngleSpeed = 0.05;
@@ -258,8 +267,6 @@ $selected = mysql_select_db($mysql_db, $link);
     var lightDist = 100;
     var mapHeight = 200;
     var mapWidth = 200;
-    var train = 0;
-    var trainPause = 500;
     var bossCount = 0;
     var verticalMirror;
     var verticalMirror2;
@@ -269,7 +276,6 @@ $selected = mysql_select_db($mysql_db, $link);
     var timerId;
     var shadows = false;
     var mirrors = false;
-    var trainSpeed = 2;
     var tankLevels = [];
     var curTankLevel = 0;
     var curTankLevelPrev = 0;
@@ -283,6 +289,9 @@ $selected = mysql_select_db($mysql_db, $link);
     var helpShow = false;
     var anonymous = false;
     var boxes = [];
+    var waveTimer = null;
+    var curWave = 0;
+    var starCount = 3;
 
 	function getWidth() {
 		if (self.innerWidth) {
@@ -342,9 +351,9 @@ $selected = mysql_select_db($mysql_db, $link);
 
 	function genEnemy(pos)
 	{
-		var posList = [{x: -300,y: -300}, {x: 300,y: -300}, {x: 300,y: 300}, {x: -300,y: 300}];
-		var x = getRand(posList[pos].x, - posList[pos].x);
-		var y = posList[pos].y;
+		var posList = [{x1: -300,y1: -300, x2: 300, y2:-700}];
+		var x = getRand(posList[pos].x1, posList[pos].x2);
+		var y = getRand(posList[pos].y1, posList[pos].y2);
 		var target = "player";
 		var color = 0xff2200;
 		var size = 15;
@@ -359,9 +368,6 @@ $selected = mysql_select_db($mysql_db, $link);
 
 	function enemyCtrl()
 	{
-		if (enemies.length < maxEnemyCount)
-			genEnemy(getRand(0,3));
-			
 		for (var j in bullets)
 		{
 			var bullet = bullets[j].mesh;
@@ -378,25 +384,36 @@ $selected = mysql_select_db($mysql_db, $link);
 			if (enemies[i].target == "player")
 				target = mesh;
 			if (enemies[i].target == "star")
+			{
 				target = star;
+				if (isCollusion(mesh,enemies[i].mesh.position,20) && (speedY != 0))
+				{
+					scene.remove(enemies[i].mesh);
+					counter += 1;
+					enemies.splice(i,1);
+					break;
+				}
+			}
 			if (target == null)
 				break;
 			if (isCollusion(target,enemies[i].mesh.position,10))
 			{
-				gameOver();
+				if (enemies[i].target == "star")
+				{
+					scene.remove(star);
+					star = null;
+					starCount--;
+					if (starCount <= 0)
+						gameOver();
+				}
+				else
+					gameOver();
 				break;
 			}
 			var d1 = -enemies[i].mesh.position.x + target.position.x;
 			var d2 = enemies[i].mesh.position.y - target.position.y;
 			var angle = Math.atan2(d2,d1);
-			maxEnemySpeed =  2 * (counter + 50) / 200
-			if (maxEnemySpeed > 4)
-				maxEnemySpeed = 4;
-			if (maxEnemySpeed < 1)
-				maxEnemySpeed = 1;
-			maxEnemyCount = counter / 30;
-			if (maxEnemyCount < 5)
-				maxEnemyCount = 5;
+			maxEnemySpeed =  2;
 			enemies[i].mesh.position.x += Math.cos(angle) * enemies[i].speed;
 			enemies[i].mesh.position.y += -Math.sin(angle) * enemies[i].speed;
 			if (enemies[i].speed < maxEnemySpeed)
@@ -425,26 +442,6 @@ $selected = mysql_select_db($mysql_db, $link);
 			}
 		}
 		document.getElementById("counter1").innerHTML = counter;
-	}
-
-	function trainCtrl()
-	{
-		trainPause -= 1;
-		if (trainPause <= 0)
-		{
-			train.position.y += trainSpeed;
-			if ((train.position.y > 0) && (train.position.y < 10) && (bossCount < 1))
-			{
-				createEnemy(-340,train.position.y + 15,30,10,0x4444ff,"blue",20,"player");
-				bossCount += 1;
-			}
-			if (train.position.y > 500)
-			{
-				trainPause = 500;
-				train.position.y = -600;
-				bossCount = 0;
-			}
-		}
 	}
 
 	function boxCtrl()
@@ -626,13 +623,6 @@ var loadCount = 0;
 		loadObject(manager,'field.obj',textureList,'grass.png', function (object){
 			field = object;
 			scene.add(object); });
-		loadObject(manager,'train.obj',textureList,'train.png', function (object){
-			train = object;
-			train.rotation.z = -Math.PI / 2;
-			train.position.x = -340;
-			train.position.y = -600;
-			train.position.z = 50;
-			scene.add(object); });
 
 	}
 
@@ -656,9 +646,9 @@ var loadCount = 0;
 
         geometry = new THREE.CircleGeometry( circleRadius, circleSegments );	
 
-		tankLevels = [	{tank:tank1, nextLevel:70, addBullets:addBullets1, power: 2},
-						{tank:tank2, nextLevel:120, addBullets:addBullets2, power: 1},
-						{tank:tank3, nextLevel:220, addBullets:addBullets3, power: 1},
+		tankLevels = [	{tank:tank1, nextLevel:150, addBullets:addBullets1, power: 2},
+						{tank:tank2, nextLevel:250, addBullets:addBullets2, power: 1},
+						{tank:tank3, nextLevel:420, addBullets:addBullets3, power: 1},
 						{tank:tank3, nextLevel:10000, addBullets:addBullets4, power: 2}]
 						
 		testTankLevel();
@@ -690,30 +680,7 @@ var loadCount = 0;
 			renderer.shadowMapWidth = 1024;
 			renderer.shadowMapHeight = 1024;
 		}
-		// MIRORR planes
 
-		if (mirrors)
-        {
-			verticalMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: 2000, textureHeight: 500, color:0x225599 } );
-			verticalMirror2 = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: 2000, textureHeight: 500, color:0x225599 } );
-	
-			var verticalMirrorMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 600, 200 ), verticalMirror.material );
-			verticalMirrorMesh.add( verticalMirror );
-			verticalMirrorMesh.position.y = 280;
-			verticalMirrorMesh.position.z = 40;
-			verticalMirrorMesh.position.x = 20;
-			verticalMirrorMesh.rotation.x = Math.PI / 2;
-			scene.add( verticalMirrorMesh );
-			
-			verticalMirrorMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 600, 200 ), verticalMirror2.material );
-			verticalMirrorMesh.add( verticalMirror2 );
-			verticalMirrorMesh.position.y = -280;
-			verticalMirrorMesh.position.x = 20;
-			verticalMirrorMesh.position.z = 40;
-			verticalMirrorMesh.rotation.x = Math.PI / 2;
-			verticalMirrorMesh.rotation.y = Math.PI;
-			scene.add( verticalMirrorMesh );
-		}
         document.body.appendChild( renderer.domElement );
         window.addEventListener( 'resize', onWindowResize, false );
 	}
@@ -777,7 +744,7 @@ var loadCount = 0;
 				document.getElementById("progress_line").style.width = (loaded * 100 / total).toFixed(2) + "%";
 				
 			};
-			loadTextures(['star.png','tank1.png','tank2.png','tank3.png','grass.png','train.png','tree.png'], manager, loadObjects);
+			loadTextures(['star.png','tank1.png','tank2.png','tank3.png','grass.png','tree.png'], manager, loadObjects);
 		}
 		else
 		{
@@ -790,13 +757,10 @@ var loadCount = 0;
 			counter = 0;
 			counterBlue = 0;
 			player = {x:0,y:0,angle:0}
-			trainPause = 500;
 			bossCount = 0;
 			curTankLevel = 0;
-			maxEnemyCount = 5;
+			maxEnemyCount = 4;
 			maxEnemySpeed = 0;
-			train.position.x = -340;
-			train.position.y = -600;
 			testTankLevel();
 			document.getElementById("finish_window").style.visibility = "hidden";
 			showLoading();
@@ -827,11 +791,6 @@ var loadCount = 0;
 
 	function render()
 	{
-		if (mirrors)
-		{
-			verticalMirror.render();
-			verticalMirror2.render();
-		}
 		renderer.render( scene, camera );
 	}
 	
@@ -881,7 +840,6 @@ var loadCount = 0;
 		}
 		
 		enemyCtrl();
-		trainCtrl();
 		starsCtrl();
 		boxCtrl();
 	}
@@ -938,6 +896,15 @@ var loadCount = 0;
 		console.log(errMsg);
 	}
 
+	function createWave(n)
+	{
+		for (var i = 0; i < waves[n].redCount + waves[n].blackCount; i++)
+			genEnemy(0);
+		if (waves[n].pause == 0)
+			gameOver();
+		waveTimer = setTimeout(function(){createWave(n+1);},waves[n].pause)
+	}
+
 	function startGame()
 	{
 		var loadingWindow = document.getElementById("loading_window");
@@ -963,6 +930,7 @@ var loadCount = 0;
 			isInitialized = true;
 		}
 		play = true;
+		createWave(curWave);
 		animate();
 		
 	}
