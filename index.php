@@ -266,7 +266,7 @@ $selected = mysql_select_db($mysql_db, $link);
     var sunAngle = 0;
     var lightDist = 100;
     var mapHeight = 200;
-    var mapWidth = 200;
+    var mapWidth = 420;
     var bossCount = 0;
     var verticalMirror;
     var verticalMirror2;
@@ -292,6 +292,8 @@ $selected = mysql_select_db($mysql_db, $link);
     var waveTimer = null;
     var curWave = 0;
     var starCount = 3;
+    var stars = [];
+    var starPoses = [{x:-100,y:50},{x:150,y:50},{x:350,y:50}];
 
 	function getWidth() {
 		if (self.innerWidth) {
@@ -343,7 +345,15 @@ $selected = mysql_select_db($mysql_db, $link);
 		enemyMesh.position.x = x;
 		enemyMesh.position.y = y;
 		enemyMesh.position.z = z;
-		enemies[enemies.length] = {mesh:enemyMesh, health:health, type:type, speed: maxEnemySpeed, target:target};
+		var n = 0;
+		for (var i = 0; i < 100; i++)
+		{
+			n = getRand(0,2);
+			if (stars[n] == null)
+				continue;
+			break;
+		}
+		enemies[enemies.length] = {starN:n, mesh:enemyMesh, health:health, type:type, speed: maxEnemySpeed, target:target};
 		enemyMesh.castShadow = true;
 		enemyMesh.receiveShadow = true;
 		scene.add(enemyMesh);
@@ -385,6 +395,15 @@ $selected = mysql_select_db($mysql_db, $link);
 				target = mesh;
 			if (enemies[i].target == "star")
 			{
+				var star = stars[enemies[i].starN]
+				if (star == null)
+					for (var j in stars)
+						if (stars[j] != null)
+						{
+							enemies[i].starN = j;
+							star = stars[j];
+							break;
+						}
 				target = star;
 				if (isCollusion(mesh,enemies[i].mesh.position,20) && (speedY != 0))
 				{
@@ -400,8 +419,8 @@ $selected = mysql_select_db($mysql_db, $link);
 			{
 				if (enemies[i].target == "star")
 				{
-					scene.remove(star);
-					star = null;
+					scene.remove(target);
+					stars[enemies[i].starN] = null;
 					starCount--;
 					if (starCount <= 0)
 						gameOver();
@@ -413,7 +432,7 @@ $selected = mysql_select_db($mysql_db, $link);
 			var d1 = -enemies[i].mesh.position.x + target.position.x;
 			var d2 = enemies[i].mesh.position.y - target.position.y;
 			var angle = Math.atan2(d2,d1);
-			maxEnemySpeed =  2;
+			maxEnemySpeed =  1.5;
 			enemies[i].mesh.position.x += Math.cos(angle) * enemies[i].speed;
 			enemies[i].mesh.position.y += -Math.sin(angle) * enemies[i].speed;
 			if (enemies[i].speed < maxEnemySpeed)
@@ -463,35 +482,11 @@ $selected = mysql_select_db($mysql_db, $link);
 
 	function starsCtrl()
 	{
-		if (star == null)
+		for (var i in stars)
 		{
-			var starPos = {position:{}};
-			var n = 0;
-			var collusion = true;
-			while (collusion && (n < 100))
-			{
-				starPos.position.x = getRand(-200,200);
-				starPos.position.y = getRand(-200,200);
-				collusion = false;
-				n++;
-				for (var i in enemies)
-				{
-					if (isCollusion(starPos,enemies[i].mesh.position,100))
-					{
-						collusion = true;
-						break;
-					}
-				}
-			}
-			star = setObject(starTemplate,starPos.position.x,starPos.position.y, 50,0);
-		}
-		star.rotation.z += 0.1;
-		if (isCollusion(mesh,star.position,50))
-		{
-			scene.remove(star);
-			star = null;
-			counter += Math.floor(5 * maxEnemySpeed);
-			testTankLevel();
+			if (stars[i] == null)
+				continue;
+			stars[i].rotation.z += 0.1;
 		}
 	}
 
@@ -614,11 +609,11 @@ var loadCount = 0;
 			});
 		loadObject(manager,'tree.obj',textureList,'tree.png', function (object){
 			tree = object;
-			setObject(tree,270,150,40,0.5);
-			setObject(tree,290,-150,40,0.3);
-			setObject(tree,340,-100,40,0.3);
-			setObject(tree,310,100,40,-0.6);
-			setObject(tree,350,190,40,0);
+			setObject(tree,570,150,40,0.5);
+			setObject(tree,590,-150,40,0.3);
+			setObject(tree,640,-100,40,0.3);
+			setObject(tree,610,100,40,-0.6);
+			setObject(tree,650,190,40,0);
 			});
 		loadObject(manager,'field.obj',textureList,'grass.png', function (object){
 			field = object;
@@ -816,6 +811,8 @@ var loadCount = 0;
 		mesh.rotation.z = player.angle;
 		mesh.position.x = player.x;
 		mesh.position.y = player.y;
+		camera.position.x = player.x;
+		camera.position.y = player.y;
 		
 		mesh.traverse( function ( child ) 
 		{
@@ -930,6 +927,8 @@ var loadCount = 0;
 			isInitialized = true;
 		}
 		play = true;
+		for (var i = 0; i < 3; i++)
+			stars[i] = setObject(starTemplate,starPoses[i].x,starPoses[i].y, 50,0);
 		createWave(curWave);
 		animate();
 		
@@ -979,8 +978,8 @@ var loadCount = 0;
 	{
 		var x = e.pageX - getWidth() / 2;
 		var y = -e.pageY + getHeight() / 2;
-		var d1 = x - mesh.position.x;
-		var d2 = y - mesh.position.y;
+		var d1 = x;
+		var d2 = y;
 		headAngle = Math.atan2(d1,d2);
 	}
 
