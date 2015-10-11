@@ -11,208 +11,7 @@ $selected = mysql_select_db($mysql_db, $link);
 <head>
 <title>Lab 1</title>
 <meta charset="utf-8">
-<style>
-	body {
-		margin: 0;
-		padding: 0;
-		overflow: hidden;
-		font-size:14px; 
-		font-family:Arial;
-		-webkit-user-select: none; /* Chrome/Safari */        
-		-moz-user-select: none; /* Firefox */
-		-ms-user-select: none; /* IE10+ */
-		background-color:#000;
-	}
-	
-	#info {
-		position: absolute;
-		top: 10px;
-		font-size: 30px;
-		left: 10px;
-		text-align: center;
-		z-index: 100;
-		display:block;
-		background-image:url('images/counter.png');
-		width:131px;
-		height:110px;
-		visibility: hidden;
-	}
-	#counter1 {
-		position: absolute;
-		left:50px;
-		top:30px;
-		color:#A00;
-	}
-	#counter2 {
-		position: absolute;
-		left:50px;
-		top:125px;
-		color:#00A;
-	}
-	.window {
-		position: absolute;
-		width: 500px;
-		height: 400px;
-		margin-left: -250px;
-		margin-top: -200px;
-		background-color: #555;
-		visibility: hidden;
-		left:50%;
-		top:50%;
-		padding-left:20px;
-		padding-top:15px;
-	}
-	
-	.start_menu {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		background-image:url(images/tank.png);
-	}
-	
-	.start_menu .content {
-		position: absolute;
-		width:100%;
-		height: calc(100% - 200px);
-		top: 170px;
-		left: 0px;
-	}
-	
-	#records {
-		position:absolute;
-		width:auto;
-		height:auto;
-		left:50px;
-		top:60px;
-	}
-	
-	#config {
-		position:absolute;
-		width:auto;
-		height:auto;
-		left:500px;
-		top:80px;	
-	}
-	
-	#game_start {
-		position:absolute;
-		width:auto;
-		height:auto;
-		left:500px;
-		top:260px;	
-	}
-	
-	#record_list {
-		width: 400px;
-		height: 300px;
-		background-color: #999;
-		overflow-y: scroll;
-		border:1px solid #666;
-	}
-	
-	.button {
-		text-align:center;
-		line-height:30px;
-		vertical-align:middle;
-		padding-left:10px;
-		padding-right:10px;
-		background-color:#999;
-		margin-top:10px;
-		width:100px;
-		cursor:default;
-	}
-	
-	.button:hover {
-		background-color:#AAA;
-	}
-	
-	#start_button {
-		visibility:hidden;
-		background-color: #669966;
-	}
-	
-	#start_button:hover {
-		visibility:hidden;
-		background-color: #7A7;
-	}
-	
-	#progress {
-		left:50px;
-		top:100px;
-		position:absolute;
-	}
-	
-	#progress_bar {
-		width:400px;
-		height:20px;
-		background-color: #555;
-		left:0px;
-		top:20px;
-		position:absolute;
-		border:1px solid #666;
-	}
-	
-	#progress_line {
-		width: 0%;
-		height:100%;
-		background-color: #2A2;
-	}
-	
-	#controls {
-		position:absolute;
-		width:224px;
-		height:100px;
-		top:-150px;
-		left:calc(50% - 112px);
-		background-image:url(images/controls.png);
-		transition: 1s;
-	}
-	
-	.record_item {
-		display:block;
-		vertical-align:middle;
-		margin:1px;
-		height: 28px;
-		vertical-align:middle;
-		background-color:#888;
-		border:1px solid #666;
-		position:relative;
-	}
-	
-	.user_name {
-		vertical-align:middle;
-		display:block;
-		position:absolute;
-		top:7px;
-		left:50px;
-	}
-	
-	.user_img {
-		vertical-align:middle;
-		display:block;
-		position:absolute;
-		top:1px;
-		left:16px;
-	}
-	
-	.score_value {
-		position:absolute;
-		top:7px;
-		left:340px;
-	}
-	
-	.record_n {
-		position:absolute;
-		top:7px;
-	}
-	
-	#logo {
-		position:absolute;
-		top:10px;
-		left:10px;
-	}
-	
-</style>
+<link type="text/css" href="style.css" rel="stylesheet">
 <script src="//vk.com/js/api/xd_connection.js?2" type="text/javascript"></script>
 
 <!-- libs -->
@@ -277,8 +76,7 @@ $selected = mysql_select_db($mysql_db, $link);
     var shadows = false;
     var mirrors = false;
     var tankLevels = [];
-    var curTankLevel = 0;
-    var curTankLevelPrev = 0;
+    var curAmmo = 0;
     var maxEnemyCount = 5;
     var maxEnemySpeed = 0;
     var isInitialized = false;
@@ -292,7 +90,10 @@ $selected = mysql_select_db($mysql_db, $link);
     var waveTimer = null;
     var curWave = 0;
     var starCount = 3;
+    var curAmmo = 0;
+    var ammoTypes = [];
     var stars = [];
+    var turels = [];
     var starPoses = [{x:-100,y:50},{x:150,y:50},{x:350,y:50}];
 
 	function getWidth() {
@@ -373,7 +174,7 @@ $selected = mysql_select_db($mysql_db, $link);
 			var size = 10;
 			color = 0x000000;
 		}
-		createEnemy(x,y,20,2, color, "red",size,target);
+		createEnemy(x,y,20,4, color, "red",size,target);
 	}
 
 	function enemyCtrl()
@@ -443,7 +244,7 @@ $selected = mysql_select_db($mysql_db, $link);
 				{
 					scene.remove(bullets[j].mesh);			
 					bullets.splice(j,1);
-					enemies[i].health -= tankLevels[curTankLevel].power;
+					enemies[i].health -= ammoTypes[curAmmo].power;
 					enemies[i].speed =  - maxEnemySpeed / 3;
 					if (enemies[i].health <= 0)
 					{
@@ -455,7 +256,6 @@ $selected = mysql_select_db($mysql_db, $link);
 							counter += 20;
 						}
 						enemies.splice(i,1);
-						testTankLevel();
 					}
 				}
 			}
@@ -468,15 +268,9 @@ $selected = mysql_select_db($mysql_db, $link);
 		for (var i in boxes)
 			if (isCollusion(mesh,boxes[i].position,30))
 			{
-				curTankLevel += 1;
+				tankLevels[boxes[i].ammoType].count += boxes[i].ammoCount;
 				scene.remove(boxes[i]);
 				boxes.splice(i,1);
-				if (tankLevels[curTankLevel].tank != mesh)
-				{
-					scene.remove(mesh);
-					mesh = tankLevels[curTankLevel].tank;
-					scene.add(mesh);
-				}
 			}
 	}
 
@@ -490,6 +284,31 @@ $selected = mysql_select_db($mysql_db, $link);
 		}
 	}
 
+	function turelCtrl()
+	{
+		for (var i in turels)
+		{
+			turels[i].counter += 1;
+			if (turels[i].counter < 20)
+				continue;
+			else
+				turels[i].counter = 0;
+			for (var j in enemies)
+			{
+				if (isCollusion(turels[i],enemies[j].mesh.position,200))
+				{
+					var dX = enemies[j].mesh.position.x - turels[i].position.x; 
+					var dY = enemies[j].mesh.position.y - turels[i].position.y;
+					var angle = Math.atan2(dX,dY);
+					var xOffset = 10 * Math.cos(angle);
+					var yOffset = 10 * Math.sin(angle);
+					addBullets2(turels[i], angle, xOffset,	yOffset, 30);
+					break;
+				}
+			}
+		}
+	}
+
 	function getRand(min, max)
 	{
 	  return Math.floor(Math.random() * (max - min) + min);
@@ -500,6 +319,8 @@ $selected = mysql_select_db($mysql_db, $link);
 		var geometry = new THREE.BoxGeometry( 30, 30, 30 );
 		var material = new THREE.MeshBasicMaterial( {color: 0x61380B} );
 		var cube = new THREE.Mesh( geometry, material );
+		cube.ammoType = getRand(0,5);
+		cube.ammoCount = ammoTypes[cube.ammoType].countInBox;
 		boxes[boxes.length] = cube;
 		cube.position.x = x;
 		cube.position.y = y;
@@ -573,16 +394,22 @@ var loadCount = 0;
 
 	function testTankLevel()
 	{
-		if (counter > tankLevels[curTankLevelPrev].nextLevel)
+		if (getRand(1,1000) < 3)
 		{
 			createBox(getRand(-200,200),getRand(-200,200));
-			curTankLevelPrev++;
+		}
+		for (var i = 0; i < tankLevels.length; i++)
+		{
+			if (curAmmo == i)
+				document.getElementById("ammo" + (i + 1)).className = "ammo_slot ammo_slot_selected";
+			else 
+				document.getElementById("ammo" + (i + 1)).className = "ammo_slot";
+			document.getElementById("ammo" + (i + 1)).innerHTML = tankLevels[i].count;
 		}
 	}
 
 	function setObject(object,x,y,z,angle)
 	{
-
 			var clone = object.clone();
 			clone.position.x = x;
 			clone.position.z = z;
@@ -639,18 +466,18 @@ var loadCount = 0;
 		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1000 );
 		camera.position.z = 700;
 
-        geometry = new THREE.CircleGeometry( circleRadius, circleSegments );	
+		ammoTypes = [
+			{countInBox:100, power: 2, addBullets:addBullets1, expense:1}, 
+			{countInBox:200, power: 1, addBullets:addBullets2, expense:2}, 
+			{countInBox:100, power: 1, addBullets:addBullets3, expense:4}, 
+			{countInBox:100, power: 2, addBullets:addBullets4, expense:1},
+			{countInBox:1, power: 1, addBullets:addBullets5, expense:1}];
 
-		tankLevels = [	{tank:tank1, nextLevel:150, addBullets:addBullets1, power: 2},
-						{tank:tank2, nextLevel:250, addBullets:addBullets2, power: 1},
-						{tank:tank3, nextLevel:420, addBullets:addBullets3, power: 1},
-						{tank:tank3, nextLevel:10000, addBullets:addBullets4, power: 2}]
+        geometry = new THREE.CircleGeometry( circleRadius, circleSegments );	
 						
 		testTankLevel();
 		
-		curTankLevel = 0;
-		
-		mesh = tankLevels[curTankLevel].tank;
+		mesh = tank1;
 		scene.add(mesh);
 		
 		sunLight = new THREE.DirectionalLight( 0xffffaa, 1.3 );
@@ -753,7 +580,6 @@ var loadCount = 0;
 			counterBlue = 0;
 			player = {x:0,y:0,angle:0}
 			bossCount = 0;
-			curTankLevel = 0;
 			maxEnemyCount = 4;
 			maxEnemySpeed = 0;
 			testTankLevel();
@@ -839,6 +665,8 @@ var loadCount = 0;
 		enemyCtrl();
 		starsCtrl();
 		boxCtrl();
+		testTankLevel();
+		turelCtrl();
 	}
 	
     function animate() {
@@ -904,6 +732,11 @@ var loadCount = 0;
 
 	function startGame()
 	{
+		tankLevels = [	{count: 100},
+						{count: 100},
+						{count: 0},
+						{count:0},
+						{count:1}]
 		var loadingWindow = document.getElementById("loading_window");
 		loadingWindow.style.visibility = "hidden";
 		var progressBar = document.getElementById("progress");
@@ -952,6 +785,26 @@ var loadCount = 0;
 		{
 			speedY = -1;
 		}
+		if (e.keyCode == 49)
+		{
+			curAmmo = 0;
+		}
+		if (e.keyCode == 50)
+		{
+			curAmmo = 1;
+		}
+		if (e.keyCode == 51)
+		{
+			curAmmo = 2;
+		}
+		if (e.keyCode == 52)
+		{
+			curAmmo = 3;
+		}
+		if (e.keyCode == 53)
+		{
+			curAmmo = 4;
+		}
 	}
 
 	function onKeyUp(e)
@@ -983,6 +836,11 @@ var loadCount = 0;
 		headAngle = Math.atan2(d1,d2);
 	}
 
+	function selectAmmo(n)
+	{
+		curAmmo = n;
+	}
+
 	function addBullet(x,y,angle,size,color)
 	{
 		var bulletMesh = new THREE.Mesh( new THREE.SphereGeometry( size,8), new THREE.MeshBasicMaterial( {color: color} ) );
@@ -993,13 +851,13 @@ var loadCount = 0;
 		scene.add(bulletMesh);
 	}
 
-	function addBullets1(xOffset,yOffset,dist)
+	function addBullets1(mesh, headAngle, xOffset,yOffset,dist)
 	{
 		addBullet(mesh.position.x + dist * Math.cos(headAngle - Math.PI / 2),
 					mesh.position.y - dist * Math.sin(headAngle - Math.PI / 2),headAngle,5,0x0000FF);
 	}
 
-	function addBullets2(xOffset,yOffset,dist)
+	function addBullets2(mesh, headAngle, xOffset,yOffset,dist)
 	{
 		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
 					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,3,0x00BFFF);
@@ -1007,7 +865,7 @@ var loadCount = 0;
 					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,3,0x00BFFF);
 	}
 
-	function addBullets3(xOffset,yOffset,dist)
+	function addBullets3(mesh, headAngle, xOffset,yOffset,dist)
 	{
 		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
 					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,3,0x00BFFF);
@@ -1019,7 +877,7 @@ var loadCount = 0;
 					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle - Math.PI / 9,3,0xff9900);
 	}
 
-	function addBullets4(xOffset,yOffset,dist)
+	function addBullets4(mesh, headAngle, xOffset,yOffset,dist)
 	{
 		addBullet(mesh.position.x - xOffset / 2 + 0 * xOffset + dist * Math.cos(headAngle - Math.PI / 2),
 					mesh.position.y + yOffset / 2 - 0 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle,5,0x00BFFF);
@@ -1031,12 +889,33 @@ var loadCount = 0;
 					mesh.position.y + yOffset / 2 - 1 * yOffset - dist * Math.sin(headAngle - Math.PI / 2),headAngle - Math.PI / 9,5,0x00BFFF);
 	}
 
+	function addBullets5(mesh, headAngle, xOffset,yOffset,dist)
+	{
+		var turel = new THREE.Mesh( new THREE.SphereGeometry(30, 6, 6 ), 
+											new THREE.MeshPhongMaterial( { color:0x666666 }));
+		turel.position.x = mesh.position.x;
+		turel.position.y = mesh.position.y;
+		turel.position.z = 0;
+		turel.castShadow = true;
+		turel.receiveShadow = true;
+		turel.counter = 0;
+		scene.add(turel);
+		turels[turels.length] = turel;
+		
+	}
+
 	function onClick(e)
 	{
 		var xOffset = 10 * Math.cos(headAngle);
 		var yOffset = 10 * Math.sin(headAngle);
 		
-		tankLevels[curTankLevel].addBullets(xOffset,yOffset,55);
+		if (tankLevels[curAmmo].count <= 0)
+			return;
+		else
+		{
+			tankLevels[curAmmo].count -= ammoTypes[curAmmo].expense;
+			ammoTypes[curAmmo].addBullets(mesh, headAngle, xOffset,yOffset,55);
+		}
 	}
 	
 	function onMusicCheck(e)
@@ -1098,6 +977,13 @@ var loadCount = 0;
 	<div id="info">
 		<div id="counter1">
 		</div>
+	</div>
+	<div id="ammo_panel">
+		<div id="ammo1" class="ammo_slot ammo_slot_selected" onclick="selectAmmo(0);"></div>
+		<div id="ammo2" class="ammo_slot" onclick="selectAmmo(1);"></div>
+		<div id="ammo3" class="ammo_slot" onclick="selectAmmo(2);"></div>
+		<div id="ammo4" class="ammo_slot" onclick="selectAmmo(3);"></div>
+		<div id="ammo5" class="ammo_slot" onclick="selectAmmo(4);"></div>
 	</div>
 	<div id="controls">
 		
